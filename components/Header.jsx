@@ -1,86 +1,74 @@
 "use client";
 
 import React from "react";
-import { LayoutDashboard, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
-// import { useStoreUser } from "@/hooks/use-store-user";
-// import { BarLoader } from "react-spinners";
-import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { LayoutDashboard } from "lucide-react";
+import {
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  SignedIn,
+  SignedOut,
+} from "@clerk/nextjs";
 import { Button } from "./ui/button";
 
 export default function Header() {
-//   const { isLoading } = useStoreUser();
-  const path = usePathname();
+  const pathname = usePathname();
 
-  if (path.includes("/editor")) {
-    return null; // Hide header on editor page
-  }
+  if (pathname.includes("/editor")) return null;
 
   return (
-    <header className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 text-nowrap">
-      {/* Center - Glass Navigation Container */}
+    <header className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full flex justify-center px-4">
+      <div className="w-full max-w-6xl backdrop-blur-md bg-white/10 border border-white/20 rounded-full px-8 py-3 flex items-center justify-between">
 
-      <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-full px-8 py-3 flex items-center justify-between gap-8">
-        
-        <Link href="/" className="mr-10 md:mr-20">
+        {/* Logo */}
+        <Link href="/" className="flex items-center">
           <Image
             src="/logo6.png"
             alt="Pixxel Logo"
-            className="min-w-24 object-cover"
             width={96}
-            height={24}
+            height={32}
+            className="object-contain"
+            priority
           />
         </Link>
 
-        {path === "/" && (
-          <div className="hidden md:flex space-x-6">
-            <Link
-              href="#features"
-              className="text-white font-medium transition-all duration-300 hover:text-cyan-400 cursor-pointer"
-            >
-              Features
-            </Link>
-            <Link
-              href="#pricing"
-              className="text-white font-medium transition-all duration-300 hover:text-cyan-400 cursor-pointer"
-            >
-              Pricing
-            </Link>
-            <Link
-              href="#contact"
-              className="text-white font-medium transition-all duration-300 hover:text-cyan-400 cursor-pointer"
-            >
-              Contact
-            </Link>
-          </div>
-        )}
+        {/* Center Navigation */}
+        <nav className="hidden md:flex items-center gap-8">
 
-        {/* Auth Actions */}
-        <div className="flex items-center gap-3 ml-10 md:ml-20">
-        
-            <Link href="/dashboard">
-              <Button variant="glass" className="hidden sm:flex">
-                <LayoutDashboard className="h-4 w-4" />
-                <span className="hidden md:flex">Dashboard</span>
-              </Button>
+          {pathname === "/" && (
+            <>
+              <Link href="#features" className="text-white font-medium hover:text-cyan-400 transition">
+                Features
+              </Link>
+              <Link href="#pricing" className="text-white font-medium hover:text-cyan-400 transition">
+                Pricing
+              </Link>
+              <Link href="#contact" className="text-white font-medium hover:text-cyan-400 transition">
+                Contact
+              </Link>
+            </>
+          )}
+
+          {/* Dashboard appears like normal nav link */}
+          <SignedIn>
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 text-white font-medium hover:text-cyan-400 transition"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
             </Link>
+          </SignedIn>
 
-            <UserButton
-              appearance={{
-                elements: {
-                  avatarBox: "w-8 h-8 rounded-lg border border-white/20",
-                  userButtonPopoverCard:
-                    "shadow-xl backdrop-blur-md bg-slate-900/90 border border-white/20",
-                  userPreviewMainIdentifier: "font-semibold text-white",
-                },
-              }}
-              afterSignOutUrl="/"
-            />
-    
+        </nav>
 
-        
+        {/* Right Side Auth */}
+        <div className="flex items-center gap-3">
+
+          <SignedOut>
             <SignInButton>
               <Button variant="glass" className="hidden sm:flex">
                 Sign In
@@ -88,15 +76,28 @@ export default function Header() {
             </SignInButton>
 
             <SignUpButton>
-              <Button variant="primary">Get Started</Button>
+              <Button variant="primary">
+                Get Started
+              </Button>
             </SignUpButton>
-        
+          </SignedOut>
+
+          <SignedIn>
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox:
+                    "w-9 h-9 rounded-full border border-white/20 hover:scale-105 transition",
+                  userButtonPopoverCard:
+                    "shadow-xl backdrop-blur-md bg-slate-900/90 border border-white/20",
+                  userPreviewMainIdentifier: "font-semibold text-white",
+                },
+              }}
+              afterSignOutUrl="/"
+            />
+          </SignedIn>
+
         </div>
-        {/* {isLoading && (
-          <div className="fixed bottom-0 left-0 w-full z-40 flex justify-center">
-            <BarLoader width={"95%"} color="#06b6d4" />
-          </div>
-        )} */}
       </div>
     </header>
   );
