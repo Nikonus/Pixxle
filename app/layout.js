@@ -5,7 +5,9 @@ import { Toaster } from "sonner";
 import { FloatingShapes } from "@/components/floating-shapes";
 import  Header from "@/components/Header.jsx";
 import { ConvexClientProvider } from "./ConvexClientProvider";
-import { ClerkProvider } from '@clerk/nextjs'
+import { ClerkProvider} from '@clerk/nextjs'
+import { shadesOfPurple } from "@clerk/themes";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +26,11 @@ export default function RootLayout({ children }) {
             defaultTheme="dark"
             enableSystem
             disableTransitionOnChange>
-              <ClerkProvider>
+              <ClerkProvider  appearance={
+                {
+                  baseTheme: shadesOfPurple,
+                }
+              }>
 
 
             <ConvexClientProvider>
@@ -37,7 +43,7 @@ export default function RootLayout({ children }) {
               </main>
             </ConvexClientProvider>
               </ClerkProvider>
-              
+
         </ThemeProvider>
       </body>
     </html>
