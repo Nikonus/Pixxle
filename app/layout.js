@@ -9,6 +9,7 @@ import { ClerkProvider} from '@clerk/nextjs'
 import { shadesOfPurple } from "@clerk/themes";
 
 
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
