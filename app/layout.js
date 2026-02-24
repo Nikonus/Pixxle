@@ -27,23 +27,16 @@ export default function RootLayout({ children }) {
             defaultTheme="dark"
             enableSystem
             disableTransitionOnChange>
-              <ClerkProvider  appearance={
-                {
-                  baseTheme: shadesOfPurple,
-                }
-              }>
-
-
-            <ConvexClientProvider>
-
-            <Header/>
-              <main className="bg-slate-900 text-white overflow-x-hidden min-h-screen">
-                <FloatingShapes/>
-                <Toaster richColors/>
-                {children}
-              </main>
-            </ConvexClientProvider>
-              </ClerkProvider>
+              <ClerkProvider appearance={{ baseTheme: shadesOfPurple }}>
+  <ConvexClientProvider>
+    <Header />
+    <main className="bg-slate-900 text-white overflow-x-hidden min-h-screen">
+      <FloatingShapes />
+      <Toaster richColors />
+      {children}
+    </main>
+  </ConvexClientProvider>
+</ClerkProvider>
 
         </ThemeProvider>
       </body>
