@@ -7,15 +7,15 @@ import { useConvexQuery } from "@/hooks/use-convex-query";
 import { api } from "@/convex/_generated/api";
 import { NewProjectModal } from "./_components/NewProjectModal";
 import { ProjectGrid } from "./_components/project-grid";
-
+import { useAuth } from "@clerk/nextjs";
 export default function DashboardPage() {
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
-
+const { isLoaded, isSignedIn } = useAuth();
   // Get user's projects
-  const { data: projects, isLoading } = useConvexQuery(
-    api.projects.getUserProjects
-  );
-
+ const { data: projects , isLoading} = useConvexQuery(
+  api.projects.getUserProjects,
+  isLoaded && isSignedIn ? {} : "skip"
+);
   return (
     <div className="min-h-screen pt-32 pb-16">
       <div className="container mx-auto px-6">

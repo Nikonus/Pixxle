@@ -21,6 +21,7 @@ import { UpgradeModal } from "@/components/upgrade-modal";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useAuth } from "@clerk/nextjs";
 
 export function NewProjectModal({ isOpen, onClose }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -30,10 +31,16 @@ export function NewProjectModal({ isOpen, onClose }) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const { mutate: createProject } = useConvexMutation(api.projects.create);
-  const { data: projects } = useConvexQuery(api.projects.getUserProjects);
+
   const { canCreateProject, isFree } = usePlanAccess();
   const router = useRouter();
+const { isLoaded, isSignedIn } = useAuth();
 
+const { data: projects } = useConvexQuery(
+  api.projects.getUserProjects,
+  // Only pass args when auth is ready **and** user is signed in
+  isLoaded && isSignedIn ? {} : "skip"
+);
   // Check if user can create new project
   const currentProjectCount = projects?.length || 0;
   const canCreate = canCreateProject(currentProjectCount);
@@ -81,16 +88,29 @@ export function NewProjectModal({ isOpen, onClose }) {
       formData.append("file", selectedFile);
       formData.append("fileName", selectedFile.name);
 
-      const uploadResponse = await fetch("/api/imagekit/upload", {
-        method: "POST",
-        body: formData,
-      });
+     const uploadResponse = await fetch("/api/imagekit/upload", {
+  method: "POST",
+  body: formData,
+});
 
-      const uploadData = await uploadResponse.json();
+if (!uploadResponse.ok) {
+  let errorText = "Upload failed";
+  try {
+    const errData = await uploadResponse.json();
+    errorText = errData.error || `HTTP ${uploadResponse.status}`;
+  } catch {
+    errorText = await uploadResponse.text() || `HTTP ${uploadResponse.status}`;
+  }
+  throw new Error(errorText);
+}
 
-      if (!uploadData.success) {
-        throw new Error(uploadData.error || "Failed to upload image");
-      }
+const uploadData = await uploadResponse.json();
+
+if (!uploadData.success) {
+  throw new Error(uploadData.error || "ImageKit upload reported failure");
+}
+
+      
 
       // Create project in Convex
       const projectId = await createProject({
