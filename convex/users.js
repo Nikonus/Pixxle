@@ -1,22 +1,25 @@
 import { mutation, query } from "./_generated/server";
+import { internalQuery } from "./_generated/server";
 
 // 🔹 Store or update current user
 export const storeUser = mutation({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
+console.log("IDENTITY:", identity);
 
     if (!identity) {
       throw new Error("Unauthenticated");
+      return null;
     }
 
     const { tokenIdentifier, email, name, picture } = identity;
 
     const existingUser = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", tokenIdentifier)
-      )
-      .unique();
+  .query("users")
+  .withIndex("by_token", (q) =>
+    q.eq("tokenIdentifier", tokenIdentifier)
+  )
+  .unique();
 
     if (existingUser) {
       await ctx.db.patch(existingUser._id, {

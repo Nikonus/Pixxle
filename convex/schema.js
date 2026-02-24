@@ -47,13 +47,12 @@ export default defineSchema({
       originalImageUrl: v.optional(v.string()), // originalIamgeUrl
       currentImageUrl: v.optional(v.string()),
       tunbnailImageUrl: v.optional(v.string()),
-
       activetransformation: v.optional(v.string()),
       backgroundRemove: v.optional(v.string()),
       createdAt: v.number(),
       lastActiveAt: v.number(),
 
-      createdAt: v.number(),
+      
       updatedAt: v.number(),
     }).index("by_userId", ["userId"])
     .index("by_title", ["title"])
@@ -68,9 +67,9 @@ export default defineSchema({
       createdAt: v.number(),
       updatedAt: v.number(),
     }).index("by_userId", ["userId"])
-    .index("by_title", ["title"])
-    .searchIndex("search_by_title", {
-      searchField: "title",
+    .index("by_name", ["name"])
+    .searchIndex("search_by_name", {
+      searchField: "name",
     }),
 
   messages: defineTable({

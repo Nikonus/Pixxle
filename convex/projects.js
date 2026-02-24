@@ -1,4 +1,7 @@
 import { query, mutation } from "./_generated/server";
+import { v } from "convex/values";
+import { internal } from "./_generated/api";
+
 
 export const create = mutation({
   args: {
@@ -14,11 +17,22 @@ export const create = mutation({
   },
 
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(internalAction.user.getCurrentUser);
+   const identity = await ctx.auth.getUserIdentity();
+console.log("IDENTITY IN PROJECT QUERY:", identity);
+if (!identity) {
+  throw new Error("Unauthenticated");
+}
 
-    if (!user) {
-      throw new Error("Unauthorized");
-    }
+const user = await ctx.db
+  .query("users")
+  .withIndex("by_token", (q) =>
+    q.eq("tokenIdentifier", identity.tokenIdentifier)
+  )
+  .unique();
+
+if (!user) {
+  throw new Error("User not found");
+}
 
     // Free plan limit check
     if (user.plan === "free") {
@@ -57,30 +71,29 @@ export const create = mutation({
 });
 
 
-export const getUserProject = query({
-  args: { projectId: v.id("project") },
+export const getUserProjects = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
 
-  handler: async (ctx, args) => {
-    const user = await ctx.runQuery(internalAction.user.getCurrentUser);
+if (!identity) {
+  throw new Error("Unauthenticated");
+}
 
-    // 🔐 Check if logged in
-    if (!user) {
-      throw new Error("Unauthorized");
-    }
+const user = await ctx.db
+  .query("users")
+  .withIndex("by_token", (q) =>
+    q.eq("tokenIdentifier", identity.tokenIdentifier)
+  )
+  .unique();
 
-    // 📦 Get project by ID
-    const project = await ctx.db.get(args.projectId);
+if (!user) {
+  throw new Error("User not found");
+}
 
-    if (!project) {
-      throw new Error("Project not found");
-    }
-
-    // 🛑 Check ownership
-    if (project.userId !== user._id) {
-      throw new Error("Access denied");
-    }
-
-    return project;
+    return await ctx.db
+      .query("project")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .collect();
   },
 });
 
@@ -88,7 +101,22 @@ export  const deleteProject = mutation({
   args: { projectId: v.id("project") },
 
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(internalAction.user.getCurrentUser);
+    const identity = await ctx.auth.getUserIdentity();
+
+if (!identity) {
+  throw new Error("Unauthenticated");
+}
+
+const user = await ctx.db
+  .query("users")
+  .withIndex("by_token", (q) =>
+    q.eq("tokenIdentifier", identity.tokenIdentifier)
+  )
+  .unique();
+
+if (!user) {
+  throw new Error("User not found");
+}
 
     // 🔐 Check if logged in
    
@@ -116,3 +144,5 @@ export  const deleteProject = mutation({
 
   }
 })
+
+ 
