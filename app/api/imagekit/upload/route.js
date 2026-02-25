@@ -43,10 +43,10 @@ export async function POST(request) {
 
     // Upload to ImageKit - Simple server-side upload
     const uploadResponse = await imagekit.upload({
-      file: buffer,
-      fileName: uniqueFileName,
-      folder: "/projects",
-    });
+  file: buffer.toString("base64"),
+  fileName: uniqueFileName,
+  folder: "/projects",
+});
 
     // Generate thumbnail URL using ImageKit transformations
     const thumbnailUrl = imagekit.url({
