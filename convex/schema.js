@@ -38,27 +38,25 @@ export default defineSchema({
     }),
 
 
-    project:defineTable({
-      title: v.string(),
-      userId: v.id("users"),
-      width: v.number(),
-      height: v.number(),
-      canvasState: v.any(),
-      originalImageUrl: v.optional(v.string()), // originalIamgeUrl
-      currentImageUrl: v.optional(v.string()),
-      tunbnailImageUrl: v.optional(v.string()),
-      activetransformation: v.optional(v.string()),
-      backgroundRemove: v.optional(v.string()),
-      createdAt: v.number(),
-      lastActiveAt: v.number(),
-
-      
-      updatedAt: v.number(),
-    }).index("by_userId", ["userId"])
-    .index("by_title", ["title"])
-    .searchIndex("search_by_title", {
-      searchField: "title",
-    }),
+   project: defineTable({
+  title: v.string(),
+  userId: v.id("users"),
+  width: v.number(),
+  height: v.number(),
+  canvasState: v.any(),
+  originalImageUrl: v.optional(v.string()),
+  currentImageUrl: v.optional(v.string()),
+  thumbnailImageUrl: v.optional(v.string()),
+  createdAt: v.number(),
+  updatedAt: v.number(),
+  lastActiveAt:v.number(),
+})
+.index("by_userId", ["userId"])
+.index("by_title", ["title"])
+.searchIndex("search_by_title", {
+  searchField: "title",
+}),
+    
 
 
     folder:defineTable({
