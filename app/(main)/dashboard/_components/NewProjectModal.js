@@ -68,75 +68,60 @@ const { data: projects } = useConvexQuery(
   });
 
   // Handle create project with plan limit check
-  const handleCreateProject = async () => {
-    // Check project limits first
-    if (!canCreate) {
-      setShowUpgradeModal(true);
-      return;
-    }
-
-    if (!selectedFile || !projectTitle.trim()) {
-      toast.error("Please select an image and enter a project title");
-      return;
-    }
-
-    setIsUploading(true);
-
-    try {
-      // Upload to ImageKit via our API route
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-      formData.append("fileName", selectedFile.name);
-
-     const uploadResponse = await fetch("/api/imagekit/upload", {
-  method: "POST",
-  body: formData,
-});
-
-if (!uploadResponse.ok) {
-  let errorText = "Upload failed";
-  try {
-    const errData = await uploadResponse.json();
-    errorText = errData.error || `HTTP ${uploadResponse.status}`;
-  } catch {
-    errorText = await uploadResponse.text() || `HTTP ${uploadResponse.status}`;
+const handleCreateProject = async () => {
+  if (!canCreate) {
+    setShowUpgradeModal(true);
+    return;
   }
-  throw new Error(errorText);
-}
 
-const uploadData = await uploadResponse.json();
+  if (!selectedFile || !projectTitle.trim()) {
+    toast.error("Please select an image and enter a project title");
+    return;
+  }
 
-if (!uploadData.success) {
-  throw new Error(uploadData.error || "ImageKit upload reported failure");
-}
+  setIsUploading(true);
 
-      
+  try {
+    // 1️⃣ Upload to ImageKit
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("fileName", selectedFile.name);
 
-      // Create project in Convex
-      const projectId = await createProject({
-        title: projectTitle.trim(),
-        originalImageUrl: uploadData.url,
-        currentImageUrl: uploadData.url,
-        thumbnailUrl: uploadData.thumbnailUrl,
-        width: uploadData.width || 800,
-        height: uploadData.height || 600,
-        canvasState: null,
-      });
+    const uploadResponse = await fetch("/api/imagekit/upload", {
+      method: "POST",
+      body: formData,
+    });
 
-      toast.success("Project created successfully!");
-
-      // Navigate to editor
-      router.push(`/editor/${projectId}`);
-    } catch (error) {
-      console.error("Error creating project:", error);
-      toast.error(
-        error.message || "Failed to create project. Please try again."
-      );
-    } finally {
-      setIsUploading(false);
+    if (!uploadResponse.ok) {
+      const err = await uploadResponse.json();
+      throw new Error(err.error || "Upload failed");
     }
-  };
 
+    const uploadData = await uploadResponse.json();
+
+    // 2️⃣ Create project in Convex
+    const projectId = await createProject({
+      title: projectTitle.trim(),
+      originalImageUrl: uploadData.url,
+      currentImageUrl: uploadData.url,
+      thumbnailImageUrl: uploadData.thumbnailUrl,
+      width: uploadData.width,
+      height: uploadData.height,
+      canvasState: null,
+    });
+
+    toast.success("Project created successfully!");
+
+    // 3️⃣ Navigate
+    router.push(`/editor/${projectId}`);
+
+  } catch (error) {
+    console.error("Error creating project:", error);
+    toast.error(error.message || "Something went wrong");
+  } finally {
+    setIsUploading(false);
+  }
+};
   // Reset modal state
   const handleClose = () => {
     setSelectedFile(null);
