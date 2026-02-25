@@ -12,58 +12,54 @@ export const create = mutation({
     width: v.number(),
     height: v.number(),
     canvasState: v.any(),
-    createdAt: v.number(),
-    updatedAt: v.number(),
   },
 
   handler: async (ctx, args) => {
-   const identity = await ctx.auth.getUserIdentity();
-console.log("IDENTITY IN PROJECT QUERY:", identity);
-if (!identity) {
-  throw new Error("Unauthenticated");
-}
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthenticated");
 
-const user = await ctx.db
-  .query("users")
-  .withIndex("by_token", (q) =>
-    q.eq("tokenIdentifier", identity.tokenIdentifier)
-  )
-  .unique();
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .unique();
 
-if (!user) {
-  throw new Error("User not found");
-}
+    if (!user) throw new Error("User not found");
 
     // Free plan limit check
     if (user.plan === "free") {
       const projectCount = await ctx.db
         .query("project")
-        .withIndex("by_user", (q) => q.eq("userId", user._id))
+        .withIndex("by_userId", (q) => q.eq("userId", user._id))
         .collect();
 
       if (projectCount.length >= 3) {
         throw new Error(
-          "You have reached the maximum number of projects. Upgrade to pro for unlimited projects."
+          "You have reached the maximum number of projects. Upgrade to pro."
         );
       }
     }
 
-    const projectId = await ctx.db.insert("project", {
-      title: args.title,
-      userId: user._id,
-      width: args.width,
-      height: args.height,
-      canvasState: args.canvasState,
-      originalImageUrl: args.originalImageUrl,
-      currentImageUrl: args.currentImageUrl,
-      thumbnailImageUrl: args.thumbnailImageUrl,
-      createdAt: args.createdAt,
-      lastActiveAt: args.updatedAt,
-    });
+    const now = Date.now();
+
+   const projectId = await ctx.db.insert("project", {
+  title: args.title,
+  userId: user._id,
+  width: args.width,
+  height: args.height,
+  canvasState: args.canvasState,
+  originalImageUrl: args.originalImageUrl,
+  currentImageUrl: args.currentImageUrl,
+  thumbnailImageUrl: args.thumbnailImageUrl,
+  createdAt: now,
+  updatedAt: now,      // ✅ YOU MUST ADD THIS
+  lastActiveAt: now,
+});
 
     await ctx.db.patch(user._id, {
       projectUsed: (user.projectUsed ?? 0) + 1,
-      lastActiveAt: Date.now(),
+      lastActiveAt: now,
     });
 
     return projectId;
