@@ -92,6 +92,14 @@ if (!user) {
       .collect();
   },
 });
+export const getProjectById = query({
+  args: {
+    id: v.id("project"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
 
 export  const deleteProject = mutation({
   args: { projectId: v.id("project") },
