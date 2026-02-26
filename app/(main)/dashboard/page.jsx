@@ -8,13 +8,25 @@ import { api } from "@/convex/_generated/api";
 import { NewProjectModal } from "./_components/NewProjectModal";
 import { ProjectGrid } from "./_components/project-grid";
 import { useAuth } from "@clerk/nextjs";
+// Add to your dashboard page.jsx
+import { usePlanAccess } from '@/hooks/use-plan-access'
+import { Crown } from "lucide-react"
+import Link from "next/link"
+import { Badge } from "@/components/ui/badge"
+
+
+// Navbar button:
+
 export default function DashboardPage() {
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
-const { isLoaded, isSignedIn } = useAuth();
-  // Get user's projects
- const { data: projects , isLoading} = useConvexQuery(
-  api.projects.getUserProjects,
-  isLoaded && isSignedIn ? {} : "skip"
+
+  const { isLoaded, isSignedIn } = useAuth();
+  const { isPro } = usePlanAccess(); // ✅ move here
+
+  const { data: projects, isLoading } = useConvexQuery(
+    api.projects.getUserProjects,
+    isLoaded && isSignedIn ? {} : "skip"
+  
 );
   return (
     <div className="min-h-screen pt-32 pb-16">
@@ -29,6 +41,13 @@ const { isLoaded, isSignedIn } = useAuth();
               Create and manage your AI-powered image designs
             </p>
           </div>
+          <Button variant={isPro ? "default" : "outline"}>
+  {isPro ? <Crown className="w-4 h-4 mr-1" /> : null}
+  {isPro ? "Pro" : "Upgrade"}
+</Button>
+<Link href="/pricing" className="ml-2">
+  <Badge variant={isPro ? "secondary" : "default"}>Pricing</Badge>
+</Link>
 
           <Button
             onClick={() => setShowNewProjectModal(true)}
