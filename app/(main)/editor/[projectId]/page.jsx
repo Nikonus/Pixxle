@@ -3,10 +3,12 @@
 'use client'
 
 import { useRef, useState, useEffect } from 'react'
-import { useCanvas } from '@/context/editor-context'
+import { useCanvas } from '@/app/context/editor-context'
 import { api } from '@/convex/_generated/api'
-import { useConvexMutation } from 'convex/react'
+import { useConvexMutation } from '@/hooks/use-convex-query'
 import { Canvas } from 'fabric'
+import { useQuery } from 'convex/react'
+import {use} from 'react'
 
 export default function EditorPage({ params }) {
   const canvasRef = useRef(null)
@@ -15,8 +17,15 @@ export default function EditorPage({ params }) {
   
   const { canvasEditor, setCanvasEditor, activeTool } = useCanvas()
   const updateProject = useConvexMutation(api.projects.updateProject)
+    const resolvedParams = use(params);
+     const projectId = resolvedParams.projectId;
+       console.log("PROJECT ID:", projectId);
 
   // Initialize Fabric.js Canvas
+ 
+  const project = useQuery(api.projects.getProjectById, {
+    id: projectId,
+  });
   useEffect(() => {
     const initializeCanvas = async () => {
       if (!canvasRef.current || !project || canvasEditor) return
