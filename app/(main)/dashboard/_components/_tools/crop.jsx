@@ -12,7 +12,7 @@ import {
   Smartphone,
   Maximize,
 } from "lucide-react";
-import { useCanvas } from "@/context/context";
+import { useCanvas } from "@/app/context/editor-context";
 import { FabricImage, Rect } from "fabric";
 
 const ASPECT_RATIOS = [
@@ -74,8 +74,7 @@ export function CropContent() {
     } else if (activeTool !== "crop" && isCropMode) {
       exitCropMode();
     }
-  }, [activeTool, canvasEditor]);
-
+}, [activeTool, canvasEditor, isCropMode]);
   // Cleanup when component unmounts
   useEffect(() => {
     return () => {
@@ -257,7 +256,7 @@ export function CropContent() {
       const actualCropHeight = cropHeight / imageScaleY;
 
       // Create a new cropped image using Fabric.js cropping
-      const croppedImage = new FabricImage(selectedImage._element, {
+      const croppedImage = new FabricImage(selectedImage.getElement(), {
         left: cropBounds.left + cropBounds.width / 2,
         top: cropBounds.top + cropBounds.height / 2,
         originX: "center",
