@@ -12,7 +12,7 @@ import {
   AlertTriangle,
   Camera,
 } from "lucide-react";
-import { useCanvas } from "@/context/context";
+import { useCanvas } from "@/app/context/editor-context";
 import { FabricImage } from "fabric";
 import { useConvexMutation } from "@/hooks/use-convex-query";
 import { api } from "@/convex/_generated/api";
