@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Expand, Lock, Unlock, Monitor } from "lucide-react";
-import { useCanvas } from "@/context/context";
+import { useCanvas } from "@/app/context/editor-context";
 import { useConvexMutation } from "@/hooks/use-convex-query";
 import { api } from "@/convex/_generated/api";
 
@@ -30,13 +30,11 @@ export function ResizeControls({ project }) {
     data,
     isLoading,
   } = useConvexMutation(api.projects.updateProject);
-
-  useEffect(() => {
-    if (!isLoading && data) {
-      window.location.reload();
-    }
-  }),
-    [data, isLoading];
+useEffect(() => {
+  if (!isLoading && data) {
+    window.location.reload();
+  }
+}, [data, isLoading]);
 
   // Calculate dimensions for aspect ratio based on original canvas size
   const calculateAspectRatioDimensions = (ratio) => {
@@ -100,52 +98,40 @@ export function ResizeControls({ project }) {
   };
 
   // Apply canvas resize
-  const handleApplyResize = async () => {
-    if (
-      !canvasEditor ||
-      !project ||
-      (newWidth === project.width && newHeight === project.height)
-    ) {
-      return;
-    }
+const handleApplyResize = async () => {
+  if (
+    !canvasEditor ||
+    !project ||
+    (newWidth === project.width && newHeight === project.height)
+  ) {
+    return;
+  }
 
-    setProcessingMessage("Resizing canvas...");
+  setProcessingMessage("Resizing canvas...");
 
-    try {
-      // Resize the canvas
-      canvasEditor.setWidth(newWidth);
-      canvasEditor.setHeight(newHeight);
+  try {
+    canvasEditor.setDimensions({
+      width: newWidth,
+      height: newHeight,
+    });
 
-      // Calculate and apply viewport scale
-      const viewportScale = calculateViewportScale();
+    const viewportScale = calculateViewportScale();
 
-      canvasEditor.setDimensions(
-        {
-          width: newWidth * viewportScale,
-          height: newHeight * viewportScale,
-        },
-        { backstoreOnly: false }
-      );
+    canvasEditor.setZoom(viewportScale);
+    canvasEditor.requestRenderAll();
 
-      canvasEditor.setZoom(viewportScale);
-      canvasEditor.calcOffset();
-      canvasEditor.requestRenderAll();
-
-      // Update project in database
-      await updateProject({
-        projectId: project._id,
-        width: newWidth,
-        height: newHeight,
-        canvasState: canvasEditor.toJSON(),
-      });
-    } catch (error) {
-      console.error("Error resizing canvas:", error);
-      alert("Failed to resize canvas. Please try again.");
-    } finally {
-      setProcessingMessage(null);
-    }
-  };
-
+    await updateProject({
+      projectId: project._id,
+      width: newWidth,
+      height: newHeight,
+      canvasState: canvasEditor.toJSON(),
+    });
+  } catch (error) {
+    console.error("Error resizing canvas:", error);
+  } finally {
+    setProcessingMessage(null);
+  }
+};
   if (!canvasEditor || !project) {
     return (
       <div className="p-4">
