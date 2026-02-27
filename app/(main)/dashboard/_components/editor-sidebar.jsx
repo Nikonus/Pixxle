@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { AdjustControls } from "./_tools/adjust";
 import { BackgroundControls } from "./_tools/background-controls";
-import { useCanvas } from "@/context/context";
+import { useCanvas } from "@/app/context/editor-context";
 import { TextControls } from "./_tools/text";
 import { AIExtenderControls } from "./_tools/ai-extend";
 import { ResizeControls } from "./_tools/resize";
