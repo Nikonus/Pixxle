@@ -149,4 +149,25 @@ if (!user) {
   }
 })
 
+export const updateProject = mutation({
+  args: {
+    projectId: v.id("project"),
+    canvasState: v.any(),
+    width: v.optional(v.number()),
+    height: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const project = await ctx.db.get(args.projectId);
+    if (!project) throw new Error("Project not found");
+
+    await ctx.db.patch(args.projectId, {
+      canvasState: args.canvasState,
+      width: args.width ?? project.width,
+      height: args.height ?? project.height,
+      updatedAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
  
