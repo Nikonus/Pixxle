@@ -29,7 +29,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
-import { useCanvas } from "@/context/context";
+import { useCanvas } from "@/app/context/editor-context";
 import { usePlanAccess } from "@/hooks/use-plan-access";
 import { UpgradeModal } from "@/components/upgrade-modal";
 import { FabricImage } from "fabric";
