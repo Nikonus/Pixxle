@@ -14,7 +14,7 @@ import {
   Check,
 } from "lucide-react";
 import { HexColorPicker } from "react-colorful";
-import { useCanvas } from "@/context/context";
+import { useCanvas } from "@/app/context/editor-context";
 import { FabricImage } from "fabric";
 
 // Unsplash API configuration
