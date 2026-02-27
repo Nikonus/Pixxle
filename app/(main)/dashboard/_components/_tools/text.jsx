@@ -15,7 +15,7 @@ import {
   AlignRight,
   AlignJustify,
 } from "lucide-react";
-import { useCanvas } from "@/context/context";
+import { useCanvas } from "@/app/context/editor-context";
 import { IText } from "fabric";
 
 const FONT_FAMILIES = [
