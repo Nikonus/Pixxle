@@ -1,7 +1,7 @@
-import { useCanvas } from "@/context/context";
+import { useCanvas } from "@/app/context/editor-context";
 import { api } from "@/convex/_generated/api";
 import { useConvexMutation } from "@/hooks/use-convex-query";
-import { Canvas, FabricImage } from "fabric";
+import { Canvas, Image as FabricImage } from "fabric";
 import React, { useEffect, useRef, useState } from "react";
 
 function CanvasEditor({ project }) {
@@ -14,6 +14,7 @@ function CanvasEditor({ project }) {
   const { mutate: updateProject } = useConvexMutation(
     api.projects.updateProject
   );
+  console.log("PROJECT DATA:", project);
 
   const calculateViewportScale = () => {
     if (!containerRef.current || !project) return 1;
@@ -25,116 +26,76 @@ function CanvasEditor({ project }) {
     return Math.min(scaleX, scaleY, 1);
   };
 
-  useEffect(() => {
-    if (!canvasRef.current || !project || canvasEditor) return;
+useEffect(() => {
+  if (!canvasRef.current || !project) return;
 
-    const initializeCanvas = async () => {
-      setIsLoading(true);
+  let canvasInstance = null;
 
-      const viewportScale = calculateViewportScale();
-      const canvas = new Canvas(canvasRef.current, {
-        width: project.width,
-        height: project.height,
-        backgroundColor: "#ffffff",
-        preserveObjectStacking: true,
-        controlsAboveOverlay: true,
-        selection: true,
-        hoverCursor: "move",
-        moveCursor: "move",
-        defaultCursor: "default",
-        allowTouchScrolling: false,
-        renderOnAddRemove: true,
-        skipTargetFind: false,
-      });
+  const initializeCanvas = async () => {
+    setIsLoading(true);
 
-      // Sync both lower and upper canvas layers
-      canvas.setDimensions(
-        {
-          width: project.width * viewportScale,
-          height: project.height * viewportScale,
-        },
-        { backstoreOnly: false }
-      );
+    const viewportScale = calculateViewportScale();
 
-      canvas.setZoom(viewportScale);
+    canvasInstance = new Canvas(canvasRef.current, {
+      width: project.width,
+      height: project.height,
+      backgroundColor: "#ffffff",
+      preserveObjectStacking: true,
+      selection: true,
+    });
 
-      // High DPI handling (optional, comment if you don’t need)
-      const scaleFactor = window.devicePixelRatio || 1;
-      if (scaleFactor > 1) {
-        canvas.getElement().width = project.width * scaleFactor;
-        canvas.getElement().height = project.height * scaleFactor;
-        canvas.getContext().scale(scaleFactor, scaleFactor);
-      }
+    canvasInstance.setDimensions(
+      {
+        width: project.width * viewportScale,
+        height: project.height * viewportScale,
+      },
+      { backstoreOnly: false }
+    );
 
-      // Load image
-      if (project.currentImageUrl || project.originalImageUrl) {
-        try {
-          const imageUrl = project.currentImageUrl || project.originalImageUrl;
-          const fabricImage = await FabricImage.fromURL(imageUrl, {
-            crossOrigin: "anonymous",
-          });
+    canvasInstance.setZoom(viewportScale);
+    const imageUrl = project.currentImageUrl || project.originalImageUrl;
 
-          const imgAspectRatio = fabricImage.width / fabricImage.height;
-          const canvasAspectRatio = project.width / project.height;
-          let scaleX, scaleY;
+if (imageUrl) {
+  const img = await FabricImage.fromURL(imageUrl);
 
-          if (imgAspectRatio > canvasAspectRatio) {
-            scaleX = project.width / fabricImage.width;
-            scaleY = scaleX;
-          } else {
-            scaleY = project.height / fabricImage.height;
-            scaleX = scaleY;
-          }
+  const imgAspectRatio = img.width / img.height;
+  const canvasAspectRatio = project.width / project.height;
 
-          fabricImage.set({
-            left: project.width / 2,
-            top: project.height / 2,
-            originX: "center",
-            originY: "center",
-            scaleX,
-            scaleY,
-            selectable: true,
-            evented: true,
-          });
+  let scale;
 
-          canvas.add(fabricImage);
-          canvas.centerObject(fabricImage);
-        } catch (error) {
-          console.error("Error loading project image:", error);
-        }
-      }
+  if (imgAspectRatio > canvasAspectRatio) {
+    scale = project.width / img.width;
+  } else {
+    scale = project.height / img.height;
+  }
 
-      // Load saved canvas state
-      if (project.canvasState) {
-        try {
-          await canvas.loadFromJSON(project.canvasState);
-          canvas.requestRenderAll();
-        } catch (error) {
-          console.error("Error loading canvas state:", error);
-        }
-      }
+  img.set({
+    left: project.width / 2,
+    top: project.height / 2,
+    originX: "center",
+    originY: "center",
+    scaleX: scale,
+    scaleY: scale,
+    selectable: true,
+  });
 
-      canvas.calcOffset();
-      canvas.requestRenderAll();
-      setCanvasEditor(canvas);
+  canvasInstance.add(img);
+  canvasInstance.renderAll();
+}
 
-      setTimeout(() => {
-        // workaround for initial resize issues
-        window.dispatchEvent(new Event("resize"));
-      }, 500);
+    setCanvasEditor(canvasInstance);
+    setIsLoading(false);
+  };
 
-      setIsLoading(false);
-    };
+  initializeCanvas();
 
-    initializeCanvas();
-
-    return () => {
-      if (canvasEditor) {
-        canvasEditor.dispose();
-        setCanvasEditor(null);
-      }
-    };
-  }, [project]);
+  return () => {
+    if (canvasInstance) {
+      canvasInstance.dispose();
+    }
+    setCanvasEditor(null);
+  };
+}, [project]);
 
   const saveCanvasState = async () => {
     if (!canvasEditor || !project) return;
