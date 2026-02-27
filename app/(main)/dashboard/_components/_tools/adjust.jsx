@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
-import { filters } from "fabric";
-import { useCanvas } from "@/context/context";
+import { filters, Canvas2dFilterBackend } from "fabric";
+import { useCanvas } from "@/app/context/editor-context";
 
-// Filter configurations
+// Singleton Canvas2D backend — create once, reuse forever
+const CANVAS2D_BACKEND = new Canvas2dFilterBackend();
+
 const FILTER_CONFIGS = [
   {
     key: "brightness",
@@ -78,7 +80,6 @@ const FILTER_CONFIGS = [
   },
 ];
 
-// Default values object
 const DEFAULT_VALUES = FILTER_CONFIGS.reduce((acc, config) => {
   acc[config.key] = config.defaultValue;
   return acc;
@@ -86,7 +87,7 @@ const DEFAULT_VALUES = FILTER_CONFIGS.reduce((acc, config) => {
 
 export function AdjustControls() {
   const [filterValues, setFilterValues] = useState(DEFAULT_VALUES);
-  const [isApplying, setIsApplying] = useState(false);
+  const isApplyingRef = useRef(false); // use ref not state to avoid stale closure
   const { canvasEditor } = useCanvas();
 
   const getActiveImage = () => {
@@ -97,11 +98,11 @@ export function AdjustControls() {
     return objects.find((obj) => obj.type === "image") || null;
   };
 
-  const applyFilters = async (newValues) => {
+  const applyFilters = (newValues) => {
     const imageObject = getActiveImage();
-    if (!imageObject || isApplying) return;
+    if (!imageObject || isApplyingRef.current) return;
 
-    setIsApplying(true);
+    isApplyingRef.current = true;
 
     try {
       const filtersToApply = [];
@@ -120,15 +121,40 @@ export function AdjustControls() {
 
       imageObject.filters = filtersToApply;
 
-      await new Promise((resolve) => {
-        imageObject.applyFilters();
-        canvasEditor.requestRenderAll();
-        setTimeout(resolve, 50);
-      });
+      // Directly call the Canvas2D backend's applyFilters instead of the
+      // instance method — this completely bypasses the global WebGL backend
+      // lookup that causes the texImage2D SecurityError.
+      if (filtersToApply.length > 0) {
+        const el = imageObject.getElement?.() ?? imageObject._element;
+        const width = imageObject.width;
+        const height = imageObject.height;
+
+        if (el && width && height) {
+          // Let the Canvas2D backend process the filter pipeline
+          CANVAS2D_BACKEND.applyFilters(
+            filtersToApply,
+            el,
+            width,
+            height,
+            imageObject.getElement?.() ?? imageObject._element
+          );
+        }
+      }
+
+      // Still call applyFilters on the object so Fabric syncs its
+      // internal texture/cache — but now the global backend is Canvas2D
+      // because we patched it on the canvas instance directly
+      if (canvasEditor.filterBackend !== CANVAS2D_BACKEND) {
+        canvasEditor.filterBackend = CANVAS2D_BACKEND;
+      }
+
+      imageObject.applyFilters();
+      imageObject.dirty = true;
+      canvasEditor.requestRenderAll();
     } catch (error) {
       console.error("Error applying filters:", error);
     } finally {
-      setIsApplying(false);
+      isApplyingRef.current = false;
     }
   };
 
@@ -170,12 +196,33 @@ export function AdjustControls() {
     return extractedValues;
   };
 
+  // Patch the canvas filterBackend as soon as canvasEditor is available
   useEffect(() => {
-    const imageObject = getActiveImage();
-    if (imageObject?.filters) {
-      const existingValues = extractFilterValues(imageObject);
-      setFilterValues(existingValues);
-    }
+    if (!canvasEditor) return;
+    // Override the canvas instance's backend before any filter is ever applied
+    canvasEditor.filterBackend = CANVAS2D_BACKEND;
+  }, [canvasEditor]);
+
+  useEffect(() => {
+    if (!canvasEditor) return;
+
+    const handleSelection = () => {
+      const imageObject = getActiveImage();
+      if (imageObject?.filters) {
+        const existingValues = extractFilterValues(imageObject);
+        setFilterValues(existingValues);
+      } else {
+        setFilterValues(DEFAULT_VALUES);
+      }
+    };
+
+    canvasEditor.on("selection:created", handleSelection);
+    canvasEditor.on("selection:updated", handleSelection);
+
+    return () => {
+      canvasEditor.off("selection:created", handleSelection);
+      canvasEditor.off("selection:updated", handleSelection);
+    };
   }, [canvasEditor]);
 
   if (!canvasEditor) {
@@ -245,7 +292,7 @@ export function AdjustControls() {
       </div>
 
       {/* Processing Indicator */}
-      {isApplying && (
+      {isApplyingRef.current && (
         <div className="flex items-center justify-center py-2">
           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cyan-400"></div>
           <span className="ml-2 text-xs text-white/70">
