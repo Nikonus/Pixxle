@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+ 🚀 Pixxle – Full Stack AI Photo Editor SaaS
 
-## Getting Started
+A production-ready AI-powered Photo Editor SaaS built with Next.js 14, Fabric.js, ImageKit AI, Convex, and Clerk Authentication.
 
-First, run the development server:
+Pixxle combines real-time canvas editing with AI-powered transformations and subscription-based access control — built using modern full-stack architecture.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+🚀 Features
+🎨 Core Editing Tools
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+✂️ Crop & Resize – Precision canvas manipulation
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+🎚️ Adjustments – Brightness, contrast, saturation controls
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+📝 Text Tool – Customizable text overlays
 
-## Learn More
+🔄 Undo/Redo – Complete edit history tracking
 
-To learn more about Next.js, take a look at the following resources:
+⚡ Autosave – Real-time canvas state synchronization
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+🤖 AI-Powered Features (Pro Plan)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+🧹 Background Removal – AI-powered instant background removal
 
-## Deploy on Vercel
+🎨 Background Search – Unsplash image integration
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+📐 AI Image Extension – Intelligent canvas extension
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+✨ AI Retouch & Upscale – ImageKit AI transformations
+
+
+💼 SaaS & Production Features
+
+💳 Subscription System
+
+Free Plan – 3 Projects Limit
+
+Pro Plan – $12/month Unlimited Access
+
+🛡️ Authentication & Authorization
+
+Clerk JWT-based auth
+
+Route protection
+
+Usage limits enforcement
+
+📊 Project Dashboard
+
+Create, Read, Update, Delete projects
+
+Real-time sync using Convex
+
+📱 Responsive UI
+
+Desktop-optimized editor experience
+
+
+🛠️ Tech Stack
+Frontend
+
+Next.js 14 (App Router)
+
+TypeScript
+
+Tailwind CSS
+
+Shadcn UI
+
+Lucide Icons
+
+Canvas Engine
+
+Fabric.js
+
+Backend / Database
+
+Convex (Realtime DB + Server Functions)
+
+Authentication & Billing
+
+Clerk (JWT + Subscription Handling)
+
+AI & Image Processing
+
+ImageKit AI
+
+Unsplash API
+
+Storage & CDN
+
+ImageKit CDN
+
+Deployment
+
+Vercel
+
+Node.js 18+
+
+📂 Project Structure
+
+app
+ ┣ (auth)
+ ┃ ┣ sign-in
+ ┃ ┣ sign-up
+ ┃ ┗ layout.js
+ ┣ (main)
+ ┃ ┣ dashboard
+ ┃ ┃ ┣ _components
+ ┃ ┃ ┃ ┣ _tools
+ ┃ ┃ ┃ ┣ canvas.jsx
+ ┃ ┃ ┃ ┣ editor-sidebar.jsx
+ ┃ ┃ ┃ ┣ editor-topbar.jsx
+ ┃ ┃ ┃ ┗ project-grid.jsx
+ ┃ ┗ editor/[projectId]
+ ┣ api/imagekit/upload
+ ┣ context/editor-context.jsx
+ ┣ pricing
+ ┣ ConvexClientProvider.jsx
+ ┗ layout.js
+# Convex
+CONVEX_DEPLOYMENT=your-deployment
+NEXT_PUBLIC_CONVEX_URL=your-url
+NEXT_PUBLIC_CONVEX_SITE_URL=your-site-url
+
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your-key
+CLERK_SECRET_KEY=your-secret
+CLERK_JWT_ISSUER_DOMAIN=your-domain
+
+# ImageKit
+NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY=your-public-key
+NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT=your-endpoint
+IMAGEKIT_PRIVATE_KEY=your-private-key
