@@ -1,133 +1,137 @@
- 🚀 Pixxle – Full Stack AI Photo Editor SaaS
+# Pixxle – AI Photo Editor SaaS
 
-A production-ready AI-powered Photo Editor SaaS built with Next.js 14, Fabric.js, ImageKit AI, Convex, and Clerk Authentication.
+Full Stack AI Photo Editor built with **Next.js 14**, **Fabric.js**, **ImageKit AI**, **Convex DB**, and **Clerk Authentication**.
 
-Pixxle combines real-time canvas editing with AI-powered transformations and subscription-based access control — built using modern full-stack architecture.
+Production-ready SaaS with real-time canvas editing, AI-powered transformations, and subscription-based monetization.
 
-🚀 Features
-🎨 Core Editing Tools
+---
 
-✂️ Crop & Resize – Precision canvas manipulation
+![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue)
+![Convex](https://img.shields.io/badge/Database-Convex-orange)
+![Clerk](https://img.shields.io/badge/Auth-Clerk-purple)
+![ImageKit](https://img.shields.io/badge/AI-ImageKit-green)
+![Deployment](https://img.shields.io/badge/Deployed-Vercel-black)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-🎚️ Adjustments – Brightness, contrast, saturation controls
+⭐ Star this repository — your support motivates development!
 
-📝 Text Tool – Customizable text overlays
+---
 
-🔄 Undo/Redo – Complete edit history tracking
+## Table of Contents
 
-⚡ Autosave – Real-time canvas state synchronization
+- [About](#about)
+- [Features](#features)
+- [SaaS Capabilities](#saas-capabilities)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Environment Variables](#environment-variables)
+- [Roadmap](#roadmap)
+- [License](#license)
+- [Author](#author)
 
-🤖 AI-Powered Features (Pro Plan)
+---
 
-🧹 Background Removal – AI-powered instant background removal
+## About
 
-🎨 Background Search – Unsplash image integration
+Pixxle is a modern AI-powered Photo Editor SaaS platform designed with scalability, maintainability, and production deployment in mind.
 
-📐 AI Image Extension – Intelligent canvas extension
+It demonstrates:
 
-✨ AI Retouch & Upscale – ImageKit AI transformations
+- Real-time state synchronization
+- AI feature integration
+- Subscription-based feature gating
+- Secure authentication
+- Modular frontend architecture
+- Production-ready App Router setup
 
+---
 
-💼 SaaS & Production Features
+## Features
 
-💳 Subscription System
+### Core Editing Tools
 
-Free Plan – 3 Projects Limit
+- Crop & Resize – Precise canvas editing
+- Brightness, Contrast, Saturation adjustments
+- Text overlays
+- Undo / Redo history
+- Autosave with real-time sync
 
-Pro Plan – $12/month Unlimited Access
+### AI-Powered Features (Pro Plan)
 
-🛡️ Authentication & Authorization
+- Background Removal (ImageKit AI)
+- AI Image Extension
+- AI Retouch & Upscale
+- Background Search (Unsplash API)
 
-Clerk JWT-based auth
+---
 
-Route protection
+## SaaS Capabilities
 
-Usage limits enforcement
+- Free Plan – 3 projects limit
+- Pro Plan – $12/month unlimited usage
+- Clerk JWT-based authentication
+- Feature access control based on subscription
+- Real-time database sync using Convex
+- Protected routes
+- Project CRUD operations
 
-📊 Project Dashboard
+---
 
-Create, Read, Update, Delete projects
+## Architecture
 
-Real-time sync using Convex
+### Frontend
+- Next.js 14 (App Router)
+- TypeScript
+- Server & Client Components
+- Tailwind CSS
+- Shadcn UI
 
-📱 Responsive UI
+### Canvas Engine
+- Fabric.js
+- Stateful object editing
+- Undo/Redo stack management
 
-Desktop-optimized editor experience
+### Backend
+- Convex Realtime Database
+- Server functions for project management
 
+### AI Processing
+- ImageKit transformation APIs
+- Secure server-side key usage
 
-🛠️ Tech Stack
-Frontend
+### Authentication & Billing
+- Clerk Authentication
+- Subscription gating logic
 
-Next.js 14 (App Router)
+---
 
-TypeScript
+## Tech Stack
 
-Tailwind CSS
+### Frontend
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- Shadcn UI
+- Lucide Icons
 
-Shadcn UI
+### Backend
+- Convex (Realtime DB)
 
-Lucide Icons
+### Auth
+- Clerk
 
-Canvas Engine
+### AI / Media
+- ImageKit AI
+- Unsplash API
 
-Fabric.js
+### Deployment
+- Vercel
+- Node.js 18+
 
-Backend / Database
+---
 
-Convex (Realtime DB + Server Functions)
+## Project Structure
 
-Authentication & Billing
-
-Clerk (JWT + Subscription Handling)
-
-AI & Image Processing
-
-ImageKit AI
-
-Unsplash API
-
-Storage & CDN
-
-ImageKit CDN
-
-Deployment
-
-Vercel
-
-Node.js 18+
-
-📂 Project Structure
-
-app
- ┣ (auth)
- ┃ ┣ sign-in
- ┃ ┣ sign-up
- ┃ ┗ layout.js
- ┣ (main)
- ┃ ┣ dashboard
- ┃ ┃ ┣ _components
- ┃ ┃ ┃ ┣ _tools
- ┃ ┃ ┃ ┣ canvas.jsx
- ┃ ┃ ┃ ┣ editor-sidebar.jsx
- ┃ ┃ ┃ ┣ editor-topbar.jsx
- ┃ ┃ ┃ ┗ project-grid.jsx
- ┃ ┗ editor/[projectId]
- ┣ api/imagekit/upload
- ┣ context/editor-context.jsx
- ┣ pricing
- ┣ ConvexClientProvider.jsx
- ┗ layout.js
-# Convex
-CONVEX_DEPLOYMENT=your-deployment
-NEXT_PUBLIC_CONVEX_URL=your-url
-NEXT_PUBLIC_CONVEX_SITE_URL=your-site-url
-
-# Clerk
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your-key
-CLERK_SECRET_KEY=your-secret
-CLERK_JWT_ISSUER_DOMAIN=your-domain
-
-# ImageKit
-NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY=your-public-key
-NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT=your-endpoint
-IMAGEKIT_PRIVATE_KEY=your-private-key
